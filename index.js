@@ -17,7 +17,9 @@ class Node {
 function knightMoves(coordinateStart, coordinateTarget){
     
     if(coordinateStart[0] > 7 || coordinateStart[1] > 7 ||
-        coordinateTarget[0] > 7 || coordinateTarget[1] > 7){
+        coordinateStart[0] < 0 || coordinateStart[1] < 0 ||
+        coordinateTarget[0] > 7 || coordinateTarget[1] > 7 ||
+        coordinateTarget[0] < 0 || coordinateTarget[1] < 0 ){
             console.log('error: coordinates out of range');
             return 
         }
@@ -75,4 +77,4 @@ function knightMoves(coordinateStart, coordinateTarget){
     })
 }
 
-knightMoves([0,0], [7,8]);
+knightMoves([0,0], [7,4]);

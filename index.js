@@ -1,39 +1,12 @@
 class Node {
-    constructor(x, y, parentNode = null){
-        this.x = x;
-        this.y = y;
+    constructor(coordinates, parentNode = null){
+        this.x = coordinates[0];
+        this.y = coordinates[1];
+
+        //parentNode to find way back to start
         this.parentNode = parentNode;
-        
-        this.moveArray = [[2, 1], [2, -1], [-2, 1], [-2, -1],
-        [1, 2], [1, -2], [-1, 2], [-1, -2]];
     }
 
-    //returns coordinates of node as 2 element array
-    getCoordinates(){
-        return [this.x, this.y];
-    }
-
-    //returns array of possible move nodes
-    generateNodes(parentNode, visitedNodes){
-        let nodeArray = [];
-        let visitedNodeFlag;
-
-
-        for (let i = 0; i < 8; i++) {
-            let x = this.getCoordinates()[0] + this.moveArray[i][0];
-            let y = this.getCoordinates()[1] + this.moveArray[i][1];
-            let newNode = new Node(x,y, parentNode);
-
-            if(visitedNodes.some((e) => e.checkForNodeMatch(newNode))){
-            }else if (x <= 7 && y <= 7 && x >=0 && y >= 0){
-                nodeArray.push(newNode);
-            }
-
-        }
-        return nodeArray;
-    }
-
-    //returns true is nodes are a match
     checkForNodeMatch(targetNode){
         return this.x === targetNode.x && this.y === targetNode.y;
     }
@@ -41,51 +14,57 @@ class Node {
 
 }
 
-function knightMoves(startNode, targetNode){
+function knightMoves(coordinateStart, coordinateTarget){
+    let moveArray = [[2, 1], [2, -1], [-2, 1], [-2, -1],
+    [1, 2], [1, -2], [-1, 2], [-1, -2]];
     let visitedNodes = [];
+
+    let startNode = new Node(coordinateStart);
+    let targetNode = new Node(coordinateTarget);
+    //queue acts as unvisited nodes list
     let queue = [startNode];
-    let unvisitedNodes;
+
 
     while(!queue[0].checkForNodeMatch(targetNode)){
-        // generate nodes off of current node (first in queue)
-        unvisitedNodes = queue[0].generateNodes(queue[0], visitedNodes);
+        // generate nodes off of current node (first in queue)        
+        moveArray.forEach((e) => {
+            //apply all 8 possible moves from starting point
+            let x = queue[0].x + e[0];
+            let y = queue[0].y + e[1];
+            //set up new nodes with current node as parent node
+            let newNode = new Node([x, y], queue[0]);
 
-        //for all of the new nodes, push them onto queue
-        unvisitedNodes.forEach((e) => {
-            queue.push(e);
+            if(visitedNodes.some((e) => e.checkForNodeMatch(newNode))){
+                //if node already has been visited, don't add to queue
+            }else if (x <= 7 && y <= 7 && x >=0 && y >= 0){
+                //only add to queue if within gameboard
+                queue.push(newNode);
+            }
         })
 
-        //take current node off queue and push it into visited nodes
+        //remove current node from queue and push it into visited nodes
         visitedNodes.push(queue.shift());
     }
 
-
+    //printing results
     let currentNode = queue[0];
     let counter = 0;
-    let parentStack = [];
+    let moveStack = [];
 
     while(currentNode.parentNode !== null){
-        parentStack.unshift(currentNode);
+        moveStack.unshift(currentNode);
         currentNode = currentNode.parentNode;
         counter++;
     }
-    parentStack.unshift(currentNode);
+    //one last time since loop will end when parentNode becomes null
+    moveStack.unshift(currentNode);
     counter++;
 
 
     console.log(`You made it in ${counter} moves! Here's your path:`);
-    parentStack.forEach((e) => {
+    moveStack.forEach((e) => {
         console.log(`[${e.x},${e.y}]`);
     })
-
- 
 }
 
-let rootNode = new Node(0,0);
-let targetNode = new Node(7, 7);
-
-
-// console.log(rootNode.generateNodes());
-// console.log(rootNode.checkForNodeMatch(targetNode));
-// console.log(rootNode.checkForNodeMatch(rootNode));
-let listOfMovesTest = knightMoves(rootNode, targetNode)
+knightMoves([0,0], [7,7]);
